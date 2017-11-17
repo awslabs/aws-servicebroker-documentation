@@ -535,14 +535,6 @@ Review the `asb` pod's _logs_ in the `aws-service-broker` namespace. The logs sh
 ```
 
 
-
-## Amazon Web Service APBs
-
-The following are the Amazon Web Services available in their APB implementation.  You can access the APB images by configuring the `my_vars.yml` file as shown earlier to get the latest stable working builds of these AWS APBs.  
-
-**Note**: Currently, there are no automatic build setup in the `awsservicebroker` Dockerhub org.  Therefore, the source code URL listed in the APB's description may not accurately reflect the `latest` build APB's images in the `awsservicebroker` Dockerhub org.
-
-
 ### General APB Tips
 
 Create a new project (namespace) to provision each of the APBs, unless it make sense to do otherwise.
