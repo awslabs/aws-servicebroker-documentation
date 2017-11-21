@@ -111,7 +111,7 @@ Once the AWS Broker is deployed, visit [https://$HOSTNAME:8443](https://$HOSTNAM
 
 # Development Deployment Instructions
 
-## CatASB - Basis
+## CatASB - Introduction
 [CatASB](https://github.com/fusor/catasb) is a collection of Ansible playbooks which will automate the creation of an OpenShift environment containing the Service Catalog and the AWS Broker.
 
 To deploy this way, you first will edit a configuration YAML file to customize the automation to your needs, and then run a shell script which will trigger an Ansible playbook.
