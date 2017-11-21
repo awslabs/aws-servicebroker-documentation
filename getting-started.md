@@ -67,44 +67,59 @@ Instructions below will guide you in deploying these components in production an
 
 # Production Deployment Instructions
 ## Deploy an OpenShift cluster with the Service Catalog
-Before deploying the AWS Service Broker, refer to OpenShift documentation for specific instructions on deploying an OpenShift 3.7 cluster.
+Before deploying the AWS Broker, refer to OpenShift documentation for specific instructions on deploying an OpenShift 3.7 cluster. The AWS Broker works with OpenShift Origin (free upstream edition) as well as the OpenShift Container Platform (supported enterprise edition).
 
  * [OpenShift Origin Documentation](https://docs.openshift.org/)
  * [OpenShift Container Platform Documentation](https://access.redhat.com/documentation/en-us/openshift_container_platform/)
 
-Keep in mind that the following requirements must be met to use the AWS Broker:
- * OpenShift version 3.7
- * Service Catalog deployed along with cluster
- * Persistent volume storage configured and available
+Before proceeding to the next steps, set up the following:
+ * OpenShift 3.7 cluster
+ * Service Catalog running on the OpenShift cluster
+ * Persistent Volume configured and available for use by AWS Broker etcd store (1 GiB recommended)
 
-## Running the AWS Broker Deployment Template
+## The AWS Broker Deployment Template
 
-The simplest way to load the AWS Broker onto an existing OpenShift cluster is with [deploy-awsservicebroker-broker.template.yaml](https://s3.amazonaws.com/awsservicebrokerbroker/scripts/deploy-awsservicebroker-broker.template.yaml), which is an OpenShift template taking several parameters.
+The simplest way to load the AWS Broker onto an existing OpenShift cluster is with [deploy-awsservicebroker-broker.template.yaml](https://s3.amazonaws.com/awsservicebrokerbroker/scripts/deploy-awsservicebroker-broker.template.yaml), an OpenShift template describing the components of an AWS Broker deployment.
 
-The process of adding the AWS Broker to a cluster can be further simplified by running this [helper script](https://s3.amazonaws.com/awsservicebrokerbroker/scripts/run_latest_build.sh) which will take care of required SSL certificate generation among other things.
+The AWS Broker template [deploy-awsservicebroker-broker.template.yaml](https://s3.amazonaws.com/awsservicebrokerbroker/scripts/deploy-awsservicebroker-broker.template.yaml) has many configurable parameters, and requires several SSL certificates to exist prior to running. Use the helper script linked in the next section to quickly fill out the recommended values. Important template parameters are described below:
 
-The shell commands below show how to download the AWS Broker template and run it with the helper script.
+ * `DOCKERHUB_ORG` - Organization from which AWS service APB images will be loaded. Set to`"awsservicebroker"`.
+ * `ENABLE_BASIC_AUTH` - Changes authentication from bearer-token auth to basic auth. Set to `"false"`.
+ * `NAMESPACE` - Namespace to deploy the broker in. Set to `"aws-service-broker"`.
+ * `ETCD_TRUSTED_CA_FILE` - File path of CA certificate for AWS Broker etcd store.
+ * `ETCD_TRUSTED_CA` - Base64 encoded contents of etcd store CA certificate. 
+ * `BROKER_CLIENT_CERT_PATH` - File path of AWS Broker client certificate. 
+ * `BROKER_CLIENT_CERT` - Base64 encoded contents of AWS Broker client certificate.
+ * `BROKER_CLIENT_KEY_PATH` - File path of AWS Broker client key. 
+ * `BROKER_CLIENT_KEY` - Base64 encoded contents of AWS Broker client key.
 
+## Using the Helper Script to Process the AWS Broker Deployment Template
+The easiest way to deploy the contents of the AWS Broker deployment template is to run the [helper script](https://s3.amazonaws.com/awsservicebrokerbroker/scripts/deploy_aws_broker.sh) which will generate required SSL certificates and provide required parameters to the template.
+
+
+First, create a directory containing the deployment template and helper script.
 ```bash
-mkdir -p ~/awsservicebroker
-cd ~/awsservicebroker
+mkdir -p ~/aws_broker_install
+cd ~/aws_broker_install
 wget https://s3.amazonaws.com/awsservicebrokerbroker/scripts/deploy-awsservicebroker-broker.template.yaml
-wget https://s3.amazonaws.com/awsservicebrokerbroker/scripts/run_latest_build.sh
-chmod a+x run_latest_build.sh
+wget https://s3.amazonaws.com/awsservicebrokerbroker/scripts/deploy_aws_broker.sh
 ```
 
-
-If you're running the OpenShift cluster from an EC-2 Instance, edit the helper script and set `HOSTNAME` to the EC2 public DNS hostname. 
-
-
+Before running the helper script, verify that the variables near the top of the file are set correctly.
 ```bash
-vi run_latest_build.sh
+vi deploy_aws_broker.sh
 ```
 
-e.g.
-
 ```bash
-HOSTNAME=my-aws-ose-test.ec2.mydomain.com
+CLUSTER_ADMIN_USER="system:admin" # OpenShift user with Cluster Administrator role.
+TEMPLATE_FILE="./deploy-awsservicebroker-broker.template.yaml" # Path to AWS Broker deploy template
+DOCKERHUB_ORG=${DOCKERHUB_ORG:-"awsservicebroker"} # Dockerhub organization where AWS APBs reside.
+```
+
+Finally, run the script to deploy the AWS Broker.
+```bash
+chmod +x deploy_aws_broker.sh
+./deploy_aws_broker.sh
 ```
 
 Once the AWS Broker is deployed, visit [https://$HOSTNAME:8443](https://$HOSTNAME:8443) to login (default username: `admin`, default password: `admin`)
