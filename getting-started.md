@@ -92,11 +92,8 @@ Use the [helper script](https://s3.amazonaws.com/awsservicebrokerbroker/scripts/
  * `ENABLE_BASIC_AUTH` - Changes authentication from bearer-token auth to basic auth. Set to `"false"`.
  * `NAMESPACE` - Namespace to deploy the broker in. Set to `"aws-service-broker"`.
  * `ETCD_TRUSTED_CA_FILE` - File path of CA certificate for AWS Broker etcd store.
- * `ETCD_TRUSTED_CA` - Base64 encoded contents of etcd store CA certificate. 
  * `BROKER_CLIENT_CERT_PATH` - File path of AWS Broker client certificate. 
- * `BROKER_CLIENT_CERT` - Base64 encoded contents of AWS Broker client certificate.
  * `BROKER_CLIENT_KEY_PATH` - File path of AWS Broker client key. 
- * `BROKER_CLIENT_KEY` - Base64 encoded contents of AWS Broker client key.
 
 ### Using the Helper Script to Process the AWS Broker Deployment Template
 The easiest way to deploy the contents of the AWS Broker deployment template is to run the [helper script](https://s3.amazonaws.com/awsservicebrokerbroker/scripts/deploy_aws_broker.sh) which will generate required SSL certificates and provide required parameters to the template.
