@@ -124,7 +124,7 @@ chmod +x deploy_aws_broker.sh
 ./deploy_aws_broker.sh
 ```
 
-Once the AWS Broker is deployed, it should be visible from the OpenShift namespace `"aws-service-broker"`.
+Once the AWS Broker is deployed, it should be visible from the OpenShift namespace `"aws-service-broker"`. You should also see AWS Services appear in the OpenShift Service Catalog.
 
 # Development Deployment Instructions
 
