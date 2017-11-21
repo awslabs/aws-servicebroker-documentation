@@ -75,9 +75,8 @@ Refer to OpenShift documentation for instructions on deploying an OpenShift 3.7 
  * [OpenShift Container Platform Documentation](https://access.redhat.com/documentation/en-us/openshift_container_platform/)
 
 Before proceeding to Step 2, set up the following:
- * OpenShift 3.7 cluster
- * Service Catalog running on the OpenShift cluster
- * Persistent Volume configured and available for use by AWS Broker (1 GiB recommended)
+ * OpenShift 3.7 cluster configured to run the Service Catalog
+ * OpenShift Persistent Volume (PV) configured and available for use by AWS Broker (1 GiB recommended)
 
 ## Step 2: Add the AWS Broker to an OpenShift Cluster
 ### The AWS Broker Deployment Template
@@ -350,23 +349,23 @@ After login, you will be greeted with the following main screen.
 
 ### Creating CloudFormation Role ARN
 
-All APB's require a valid CloudFormation Role ARN (Amazon Resource Name) as a parameter.  To Create it, follow the steps below
+All APBs require a valid CloudFormation Role ARN (Amazon Resource Name) as a parameter. This role will be assumed when executing CloudFormation actions, and can be used to limit AWS Broker access permissions if desired. To create a compatible role, follow the steps below.
 
 
 
-1.  Logon to the AWS Management Console WebUI 
+1.  Login to the AWS Management Web Console 
 1.  Click "Services → IAM"
 1.  Click "Roles" in the Left column
 1.  Click "Create Role"
-1.  Click on "CloudFormation" in the "Select type of trust entity"
+1.  On the "Select type of trust entity" screen, select "CloudFormation" 
 1.  Then click "Next: Permissions" to continue
-1.  Select "AdministratorAccess", and click "Next: Review" to continue
-1.  Enter the desired Role Name, and click "Create Role"
+1.  Select an appropriate permission level (select "AdministratorAccess" to give the broker full permissions)
+1.  Click "Next: Review" to continue
+1.  Enter the desired IAM Role Name (e.g. "aws-broker-cloudformation"), and click "Create Role"
 
 Once you have completed creating the CloudFormation Role, you can get its ARN by going back to the "Services → IAM" and clicking on "Roles", then selecting your newly created Role. 
 
 The ARN will have the following format:
-
 
 ```
 arn:aws:iam::375558675309:role/my-role-name
