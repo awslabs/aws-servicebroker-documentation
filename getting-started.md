@@ -44,7 +44,7 @@ Instructions below will guide you in deploying these components in production an
 
 ## Production
 
-[Jump to "Production" deployment steps.](#production-deployment-instructions)
+[Jump to "Production" deployment instructions.](#production-deployment-instructions)
 
  * For production workloads
  * Uses an [OpenShift template](https://s3.amazonaws.com/awsservicebrokerbroker/scripts/deploy-awsservicebroker-broker.template.yaml) to deploy the AWS Broker into an existing OpenShift cluster
@@ -56,7 +56,7 @@ Instructions below will guide you in deploying these components in production an
  
  ## Development
  
- [Jump to "Development" deployment steps.](#development-deployment-instructions)
+ [Jump to "Development" deployment instructions.](#development-deployment-instructions)
 
  * For development and testing
  * Uses [CatASB](https://github.com/fusor/catasb) to deploy OpenShift, Service Catalog, and AWS Broker
