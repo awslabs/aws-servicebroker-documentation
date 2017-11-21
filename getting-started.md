@@ -46,9 +46,8 @@ Instructions below will guide you in deploying these components in production an
 
 [Jump to "Production" deployment steps.](#production-deployment-instructions)
 
- * Uses an [OpenShift template](https://s3.amazonaws.com/awsservicebrokerbroker/scripts/deploy-awsservicebroker-broker.template.yaml) to deploy the AWS Broker into an existing OpenShift cluster
  * For production workloads
- * OpenShift cluster is fully customizable
+ * Uses an [OpenShift template](https://s3.amazonaws.com/awsservicebrokerbroker/scripts/deploy-awsservicebroker-broker.template.yaml) to deploy the AWS Broker into an existing OpenShift cluster
  * Can be quickly deployed on an existing OpenShift cluster
  * Only way to run with on-premises multi-node OpenShift cluster
  * Requires manually running the OpenShift installer
@@ -59,11 +58,11 @@ Instructions below will guide you in deploying these components in production an
  
  [Jump to "Development" deployment steps.](#development-deployment-instructions)
 
- * Uses [CatASB](https://github.com/fusor/catasb) to deploy OpenShift, Service Catalog, and AWS Broker
  * For development and testing
+ * Uses [CatASB](https://github.com/fusor/catasb) to deploy OpenShift, Service Catalog, and AWS Broker
  * Relaxed security settings by default
  * Not for production workloads
- * Provides a quick way to update components (OpenShift, Service Catalog, AWS Broker) to latest available.
+ * Provides a quick way to reset environment (OpenShift, Service Catalog, AWS Broker) to latest available.
  * Supports deploying OpenShift cluster onto AWS EC2
 
 
