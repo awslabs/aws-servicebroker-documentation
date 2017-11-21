@@ -1,20 +1,20 @@
 # Getting Started Guide - Early Access
 
+## Overview
 
-## Introduction
+This guide describes how to configure an OpenShift cluster with the capability to deploy AWS services.
 
-The below defines terms and abbreviations which are used throughout this document.
+### Terminology
 
-
+The following terms and abbreviations are used throughout the document.
 
 *   **Service Catalog** is the component which finds and presents the users the list of services which the user has access to. It also gives the user the ability to provision new instances of those services and provide a way to to bind the provisioned services to existing applications.
 *   **Service Brokers** are the components that manages a set of capabilities in the cloud infrastructure, and provides the service catalog with the list of services, via implementing the Open Service Broker API
 *   **AWS Broker** is the Red Hat's OpenShift Org's implementation of the service broker for Amazon Services.
 *   **Ansible Playbook Bundle (APB)** is a application definition (meta-container) used to define and deploy applications. 
 
-The following Amazon Services are available as APBs.  
-
-
+### AWS Services available
+After completing the steps in this guide, the following AWS services will be available from the OpenShift Service Catalog as APBs. 
 
 *   Simple Queue Service (SQS)
 *   Simple Notification Service (SNS)
@@ -24,33 +24,66 @@ The following Amazon Services are available as APBs.
 *   Simple Cloud Storage Service (S3)
 *   ElastiCache
 *   Redshift
-*   Dynamodb
+*   DynamoDB
 
 
-## Prerequisites
+## Requirements
 
-The following must be satisfied before beginning.
-
-
+The following are required to provision AWS services from the OpenShift Service Catalog.
 
 *   OpenShift Container Platform (OCP) or Origin v3.7
 *   Docker
-*   Service Catalog Enabled
-*   AWS Service Broker configured with a registry (e.g. docker.io/awsservicebroker)
+*   Service Catalog
+*   AWS Service Broker configured with an appropriate registry (e.g. docker.io/awsservicebroker)
 *   APB Prerequisites (if applicable)
 
-
-## Environment Setup
-
-The following describe the steps to setup the various OpenShift environment with a [Service Catalog](https://github.com/kubernetes-incubator/service-catalog) & [AWS Service Broker](https://github.com/openshift/ansible-service-broker) 
+Instructions below will guide you in deploying these components in production and development environments.
 
 
-### Deployment Template
+# Choosing a Deployment Type
 
-The simplest way to create the minimal environment is to run a deployment template on your local machine or on an EC-2 instance (t2.medium or higher is recommended).
+## Production
 
-Get the deployment config file and the `run_latest_build.sh` script file
+ * Uses an [OpenShift template](https://s3.amazonaws.com/awsservicebrokerbroker/scripts/deploy-awsservicebroker-broker.template.yaml) to deploy the AWS Broker into an existing OpenShift cluster
+ * For production workloads
+ * OpenShift cluster is fully customizable
+ * Can be quickly deployed on an existing OpenShift cluster
+ * Only way to run with on-premises multi-node OpenShift cluster
+ * Requires manually running the OpenShift installer
+ * May require additional knowledge of OpenShift
+ 
+ [Jump to "Production" deployment steps.](#production-deployment-instructions)
+ 
+ ## Development
 
+ * Uses [CatASB](https://github.com/fusor/catasb) to deploy OpenShift, Service Catalog, and AWS Broker
+ * For development and testing
+ * Relaxed security settings by default
+ * Not for production workloads
+ * Provides a quick way to update components (OpenShift, Service Catalog, AWS Broker) to latest available.
+ * Supports deploying OpenShift cluster onto AWS EC2
+
+ [Jump to "Development" deployment steps.](#development-deployment-instructions)
+
+# Production Deployment Instructions
+## Deploy an OpenShift cluster with the Service Catalog
+Before deploying the AWS Service Broker, refer to OpenShift documentation for specific instructions on deploying an OpenShift 3.7 cluster.
+
+ * [OpenShift Origin Documentation](https://docs.openshift.org/)
+ * [OpenShift Container Platform Documentation](https://access.redhat.com/documentation/en-us/openshift_container_platform/)
+
+Keep in mind that the following requirements must be met to use the AWS Broker:
+ * OpenShift version 3.7
+ * Service Catalog deployed along with cluster
+ * Persistent volume storage configured and available
+
+## Running the AWS Broker Deployment Template
+
+The simplest way to load the AWS Broker onto an existing OpenShift cluster is with [deploy-awsservicebroker-broker.template.yaml](https://s3.amazonaws.com/awsservicebrokerbroker/scripts/deploy-awsservicebroker-broker.template.yaml), which is an OpenShift template taking several parameters.
+
+The process of adding the AWS Broker to a cluster can be further simplified by running this [helper script](https://s3.amazonaws.com/awsservicebrokerbroker/scripts/run_latest_build.sh) which will take care of required SSL certificate generation among other things.
+
+The shell commands below show how to download the AWS Broker template and run it with the helper script.
 
 ```bash
 mkdir -p ~/awsservicebroker
@@ -61,29 +94,27 @@ chmod a+x run_latest_build.sh
 ```
 
 
-If you're running this from an EC-2 Instance, edit the  `run_latest_build.sh` script and set the `HOSTNAME` to the EC-2 instance's public DNS hostname 
+If you're running the OpenShift cluster from an EC-2 Instance, edit the helper script and set `HOSTNAME` to the EC2 public DNS hostname. 
 
 
 ```bash
 vi run_latest_build.sh
 ```
 
-
-
 e.g.
-
 
 ```bash
 HOSTNAME=my-aws-ose-test.ec2.mydomain.com
 ```
 
+Once the AWS Broker is deployed, visit [https://$HOSTNAME:8443](https://$HOSTNAME:8443) to login (default username: `admin`, default password: `admin`)
 
-Visit [https://$HOSTNAME:8443](https://$HOSTNAME:8443) to login (default username: `admin`, default password: `admin`)
+# Development Deployment Instructions
 
+## CatASB - Basis
+[CatASB](https://github.com/fusor/catasb) is a collection of Ansible playbooks which will automate the creation of an OpenShift environment containing the Service Catalog and the AWS Broker.
 
-### CatASB (for development and testing)
-
-[CatASB](https://github.com/fusor/catasb) is a collection of ansible playbooks, which will automate the creation of your OpenShift environment with greater ability to customize your setup. In short, you will edit and customize a configuration YAML file, and run an ansible playbook with a script.
+To deploy this way, you first will edit a configuration YAML file to customize the automation to your needs, and then run a shell script which will trigger an Ansible playbook.
 
 First, clone the `catasb` git repository
 
@@ -141,7 +172,7 @@ deploy_awsservicebroker: True
 **deploy_awsservicebroker** - Deploy AWS Broker
 
 
-### CatASB - Deploying to the local machine
+## CatASB - Deploying to the local machine
 
 This will do an '`oc cluster up`', and install/configure the service catalog with the AWS broker.
 
@@ -186,7 +217,7 @@ or
 The script will output the details of the OpenShift Cluster
 
 
-##### Troubleshooting
+### Troubleshooting
 
 
 When visiting the cluster URL (e.g. [https://172.17.0.1:8443/console/](https://172.17.0.1:8443/console/)), you may get an issue with _not_ being able connect.  Check your firewall rules to make sure all of the OpenShift Ports are permitted. [Click here to see the list of ports](https://docs.openshift.com/container-platform/latest/install_config/install/prerequisites.html#required-ports)
