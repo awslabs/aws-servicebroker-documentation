@@ -68,7 +68,7 @@ Instructions below will guide you in deploying these components in production an
 
 
 # Production Deployment Instructions
-## Step 1: Deploy an OpenShift cluster with the Service Catalog
+## Step 1: Deploy an OpenShift cluster configured to run the Service Catalog
 Refer to OpenShift documentation for instructions on deploying an OpenShift 3.7 cluster.
 
  * [OpenShift Origin Documentation](https://docs.openshift.org/)
