@@ -39,15 +39,15 @@ The following are required to provision AWS services from the OpenShift Service 
 
 Instructions below will guide you in deploying these components in production and development environments.
 
-# Before Deploying the AWS Broker
+## Before Deploying the AWS Broker
 
-## Create an AWS Access Key for the AWS Broker to use
+### Create an AWS Access Key for the AWS Broker to use
 
 The AWS Broker requires an AWS Access Key to provision AWS services. See the [AWS IAM documentation](http://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html) for information on creating an Access Key.
 
 Keep track of the created key for later in the deployment process.
 
-## Create an IAM Role for the AWS Broker to assume
+### Create an IAM Role for the AWS Broker to assume
 
 When the AWS Broker is provisioning services, it assumes an IAM Role to access CloudFormation. The AWS Access Key you've just created needs access to this CloudFormation IAM role so that the AWS Broker can assume the role for service provisioning tasks. 
 
@@ -74,9 +74,9 @@ arn:aws:iam::375558675309:role/my-role-name
 Keep track of role ARN for later during the deployment process.
 
 
-# Choosing a Deployment Type
+## Choosing a Deployment Type
 
-## Production
+### Production
 
 [Jump to "Production" deployment instructions.](#production-deployment-instructions)
 
@@ -88,7 +88,7 @@ Keep track of role ARN for later during the deployment process.
  * May require additional knowledge of OpenShift
  
  
- ## Development
+### Development
  
  [Jump to "Development" deployment instructions.](#development-deployment-instructions)
 
@@ -101,8 +101,8 @@ Keep track of role ARN for later during the deployment process.
 
 
 
-# Production Deployment Instructions
-## Step 1: Deploy an OpenShift cluster configured to run the Service Catalog
+## Production Deployment Instructions
+### Step 1: Deploy an OpenShift cluster configured to run the Service Catalog
 Refer to OpenShift documentation for instructions on deploying an OpenShift 3.7 cluster.
 
  * [OpenShift Origin Documentation](https://docs.openshift.org/)
@@ -112,8 +112,8 @@ Before proceeding to Step 2, set up the following:
  * OpenShift 3.7 cluster configured to run the Service Catalog
  * OpenShift Persistent Volume (PV) configured and available for use by AWS Broker (1 GiB recommended)
 
-## Step 2: Add the AWS Broker to an OpenShift Cluster
-### The AWS Broker Deployment Template
+### Step 2: Add the AWS Broker to an OpenShift Cluster
+#### The AWS Broker Deployment Template
 
 The simplest way to load the AWS Broker onto an existing OpenShift cluster is with [deploy-awsservicebroker-broker.template.yaml](https://s3.amazonaws.com/awsservicebrokerbroker/scripts/deploy-awsservicebroker-broker.template.yaml), an OpenShift template describing the components of an AWS Broker deployment.
 
@@ -128,7 +128,7 @@ Use the [helper script](https://s3.amazonaws.com/awsservicebrokerbroker/scripts/
  * `BROKER_CLIENT_CERT_PATH` - File path of AWS Broker client certificate. 
  * `BROKER_CLIENT_KEY_PATH` - File path of AWS Broker client key. 
 
-### Using the Helper Script to Process the AWS Broker Deployment Template
+#### Using the Helper Script to Process the AWS Broker Deployment Template
 The easiest way to deploy the contents of the AWS Broker deployment template is to run the [helper script](https://s3.amazonaws.com/awsservicebrokerbroker/scripts/deploy_aws_broker.sh) which will generate required SSL certificates and provide required parameters to the template.
 
 
@@ -159,9 +159,9 @@ chmod +x deploy_aws_broker.sh
 
 Once the AWS Broker is deployed, it should be visible from the OpenShift namespace `"aws-service-broker"`. You should also see AWS Services appear in the OpenShift Service Catalog.
 
-# Development Deployment Instructions
+## Development Deployment Instructions
 
-## CatASB - Introduction
+### CatASB - Introduction
 [CatASB](https://github.com/fusor/catasb) is a collection of Ansible playbooks which will automate the creation of an OpenShift environment containing the Service Catalog and the AWS Broker. _Unlike_ the production deployment steps, these steps will automatically handle creation of the OpenShift cluster.
 
 To deploy this way, you will first edit a configuration YAML file to customize the automation to your needs.
@@ -217,7 +217,7 @@ deploy_awsservicebroker: True
 `deploy_awsservicebroker` - deploy AWS Broker, defaults to "False"
 
 
-## CatASB - Associating an AWS Access and Secret key pair for all APBs
+### CatASB - Associating an AWS Access and Secret key pair for all APBs
 
 If you wish to use only one set of AWS Access and Secret key pair for for all AWS Service APBs, you can set a few environment variables **_BEFORE_** running the CatASB scripts, and the secrets will be **_automatically_** created for the APBs to consume.
 
@@ -237,7 +237,7 @@ If you wish to remove the automatically created secret later on, login to the Op
 
 
 
-## CatASB - Deploying to the local machine
+### CatASB - Deploying to the local machine
 
 This will do an '`oc cluster up`', and install/configure the Service Catalog with the AWS broker.
 
@@ -282,7 +282,7 @@ or
 If the CatASB is successful, the script will eventually output the details of the OpenShift Cluster.
 
 
-### Troubleshooting
+#### Troubleshooting
 
 
 When visiting the cluster URL (e.g. [https://172.17.0.1:8443/console/](https://172.17.0.1:8443/console/)), you may get an issue with _not_ being able connect.  Check your firewall rules to make sure all of the OpenShift Ports are permitted. [Click here to see the list of ports](https://docs.openshift.com/container-platform/latest/install_config/install/prerequisites.html#required-ports)
@@ -298,7 +298,7 @@ sudo iptables -F
 
 
 
-## CatASB - Deploying to EC2 (single-node)
+### CatASB - Deploying to EC2 (single-node)
 
 This environment uses "`oc cluster up`" in a single EC2 instance, and will install the OpenShift components from RPMs.
 
@@ -389,7 +389,7 @@ All of the scripts above will output the details of the OpenShift Cluster.  Howe
 
 
 
-## CatASB - OpenShift Web Console Login
+### CatASB - OpenShift Web Console Login
 
 When you visit the cluster URL  ([https://172.17.0.1:8443/console/](https://172.17.0.1:8443/console/) is default for CatASB) you should see a login screen as shown below.  The default login for CatASB is `admin` username with `admin` password.
 
@@ -400,7 +400,7 @@ After login, you will be greeted with the following main screen.
 ![OpenShift Service Catalog](images/service-catalog.png)
 
 
-# Using Secrets to Hide Parameters from Service Catalog Users
+## Using Secrets to Hide Parameters from Service Catalog Users
 
 Many of the AWS Service APBs share a common set of required parameters (e.g. `AWS Access Key`, `AWS Secret Key`, `CloudFormation Role ARN`, `Region`, `VPC ID`) which a cluster administrator may want to hide from the user for security or simplicity purposes. Using AWS Broker secrets, cluster administrators can hide chosen parameters, and instead opt to manually designate preset values per-service or in general.  
 
@@ -408,7 +408,7 @@ To hide selected AWS Service parameters from Service Catalog users, a cluster ad
 
 Follow the steps below to manually create and configure secrets for your APBs. When deploying with CatASB, secrets containing the `AWS Access Key` and `AWS Secret Key` will be created automatically if appropriate environment variables are set before running.
 
-## Manually Creating Secrets to Autofill AWS Service Parameters
+### Manually Creating Secrets to Autofill AWS Service Parameters
 
 Let's consider a scenario in which you haven't yet set `AWS_ACCESS_KEY_ID` or `AWS_SECRET_ACCESS_KEY` as AWS Broker secrets, and that you wish to create an appropriate secret now so that users provisioning services won't have to know these details.
 
@@ -577,7 +577,7 @@ Review the `asb` pod's _logs_ in the `aws-service-broker` namespace. The logs sh
 ```
 
 
-# General APB Tips
+## General APB Tips
 
 Create a new project (namespace) to provision each of the APBs, unless it make sense to do otherwise.
 
@@ -586,9 +586,9 @@ All AWS APBs require the `aws_access_key` and the `aws_secret_key` parameters.  
 Most APB parameters have default values and are descriptive enough to make an educated guess on what the values should be. Many parameters are selectable from a set of valid choices.  However, if any of the parameters do not make sense, do not provision.  Click the "view documentation" and review the AWS service documentation when you're not certain what the parameters should be.
 
 
-## Binding
+### Binding
 
-### Provision first, Bind Later
+#### Provision first, Bind Later
 
 If you simply want to provision the APB and wish to bind it to an application at a later time, do the following
 
@@ -600,7 +600,7 @@ If you simply want to provision the APB and wish to bind it to an application at
 *   Redeploy your app if it does not automatically redeploy after binding. Some `source-to-image` apps may need to be manually redeployed
 
 
-### Bind During the Provisioning Step
+#### Bind During the Provisioning Step
 
 To bind applications to APB during the provisioning step, you must already have an App or an APB that was successfully provisioned. Once you have an APB to bind to, do the following
 
@@ -613,9 +613,9 @@ To bind applications to APB during the provisioning step, you must already have 
 *   Redeploy your app if it does not automatically redeploy
 
 
-# Troubleshooting
+## General Troubleshooting
 
-## Debugging connectivity issues from external traffic to VPC
+### Debugging connectivity issues from external traffic to VPC
 
 We've run into some cases with RDS where the connection to the RDS instance was not accessible.  When this happens look at the VPC of the RDS instance and trace to the associated routing table.  Verify that the routing table has a reference to the internet gateway, if you don't see a reference to the igw like below then add it so external traffic is allowed.
 
