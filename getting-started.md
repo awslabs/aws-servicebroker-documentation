@@ -39,6 +39,40 @@ The following are required to provision AWS services from the OpenShift Service 
 
 Instructions below will guide you in deploying these components in production and development environments.
 
+# Before Deploying the AWS Broker
+
+## Create an AWS Access Key for the AWS Broker to use
+
+The AWS Broker requires an AWS Access Key to provision AWS services. See the [AWS IAM documentation](http://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html) for information on creating an Access Key.
+
+Keep track of the created key for later in the deployment process.
+
+## Create an IAM Role for the AWS Broker to assume
+
+When the AWS Broker is provisioning services, it assumes an IAM Role to access CloudFormation. The AWS Access Key you've just created needs access to this CloudFormation IAM role so that the AWS Broker can assume the role for service provisioning tasks. 
+
+Follow these instructions to manually create a compatible IAM role.
+
+1.  Login to the AWS Management Web Console 
+1.  Click "Services → IAM"
+1.  Click "Roles" in the Left column
+1.  Click "Create Role"
+1.  On the "Select type of trust entity" screen, select "CloudFormation" 
+1.  Then click "Next: Permissions" to continue
+1.  Select an appropriate permission level (select "AdministratorAccess" to give the broker full permissions)
+1.  Click "Next: Review" to continue
+1.  Enter the desired IAM Role Name (e.g. "aws-broker-cloudformation"), and click "Create Role"
+
+Once you have completed creating the role, you can get its ARN by going back to the "Services → IAM" and clicking on "Roles", then selecting your newly created Role. 
+
+The role ARN will have the following format:
+
+```
+arn:aws:iam::375558675309:role/my-role-name
+```
+
+Keep track of role ARN for later during the deployment process.
+
 
 # Choosing a Deployment Type
 
@@ -130,7 +164,7 @@ Once the AWS Broker is deployed, it should be visible from the OpenShift namespa
 ## CatASB - Introduction
 [CatASB](https://github.com/fusor/catasb) is a collection of Ansible playbooks which will automate the creation of an OpenShift environment containing the Service Catalog and the AWS Broker. _Unlike_ the production deployment steps, these steps will automatically handle creation of the OpenShift cluster.
 
-To deploy this way, you first will edit a configuration YAML file to customize the automation to your needs.
+To deploy this way, you will first edit a configuration YAML file to customize the automation to your needs.
 
 First, clone the `catasb` git repository
 
@@ -183,6 +217,26 @@ deploy_awsservicebroker: True
 `deploy_awsservicebroker` - deploy AWS Broker, defaults to "False"
 
 
+## CatASB - Associating an AWS Access and Secret key pair for all APBs
+
+If you wish to use only one set of AWS Access and Secret key pair for for all AWS Service APBs, you can set a few environment variables **_BEFORE_** running the CatASB scripts, and the secrets will be **_automatically_** created for the APBs to consume.
+
+In the terminal, export the values for the AWS Access and Secret keys as shown below
+
+
+```bash
+$ export AWS_ACCESS_KEY_ID="<my_aws_access_key_value>"
+$ export AWS_SECRET_ACCESS_KEY="<my_aws_secret_key_value>"
+```
+
+With these exported, the APBs will no longer require the user to input the Access and Secret key parameters during the APB provisioning step, since those parameter fields will not be visible.
+
+If you wish to remove the automatically created secret later on, login to the OpenShift Console, visit ` aws-service-broker→ resources → secrets` → `aws-custom-access-key-pair` secret and select `Actions → Delete`.
+
+**Note**: After deleting the secret, manual entry of the AWS access and secret key parameters will be required during the AWS service provisioning step.
+
+
+
 ## CatASB - Deploying to the local machine
 
 This will do an '`oc cluster up`', and install/configure the Service Catalog with the AWS broker.
@@ -202,7 +256,7 @@ cd catasb/local/mac    # for Mac OS
 If you are running in the Mac OS, review/edit `catasbconfig/mac_vars.yml`
 
 
-To create secrets for the AWS Access and AWS Secret Key parameters for all your APBs, do the following.  
+To facilitate automatic creation of secrets for the AWS Access and AWS Secret Key parameters for all your APBs, do the following.  
 
 
 ```bash
@@ -244,7 +298,7 @@ sudo iptables -F
 
 
 
-### CatASB - Deploying to EC2 (single-node)
+## CatASB - Deploying to EC2 (single-node)
 
 This environment uses "`oc cluster up`" in a single EC2 instance, and will install the OpenShift components from RPMs.
 
@@ -335,9 +389,9 @@ All of the scripts above will output the details of the OpenShift Cluster.  Howe
 
 
 
-### Console Login
+## CatASB - OpenShift Web Console Login
 
-When you visit the cluster URL  (e.g. [https://172.17.0.1:8443/console/](https://172.17.0.1:8443/console/)) you should see a login screen as shown below.  The default login is `admin` username with `admin` password.
+When you visit the cluster URL  ([https://172.17.0.1:8443/console/](https://172.17.0.1:8443/console/) is default for CatASB) you should see a login screen as shown below.  The default login for CatASB is `admin` username with `admin` password.
 
 ![OpenShift Login](images/openshift-login.png)
 
@@ -346,71 +400,19 @@ After login, you will be greeted with the following main screen.
 ![OpenShift Service Catalog](images/service-catalog.png)
 
 
+# Using Secrets to Hide Parameters from Service Catalog Users
 
-### Creating CloudFormation Role ARN
+Many of the AWS Service APBs share a common set of required parameters (e.g. `AWS Access Key`, `AWS Secret Key`, `CloudFormation Role ARN`, `Region`, `VPC ID`) which a cluster administrator may want to hide from the user for security or simplicity purposes. Using AWS Broker secrets, cluster administrators can hide chosen parameters, and instead opt to manually designate preset values per-service or in general.  
 
-All APBs require a valid CloudFormation Role ARN (Amazon Resource Name) as a parameter. This role will be assumed when executing CloudFormation actions, and can be used to limit AWS Broker access permissions if desired. To create a compatible role, follow the steps below.
+To hide selected AWS Service parameters from Service Catalog users, a cluster administrator must create secret(s) in the 'aws-service-broker' namespace.  Once secrets containing parameter presets are created and associated with an APB, those parameters will NOT appear during the normal APB's launching process.  This means that the user will not even "see" that parameter option to enter the value for, since they have already been set and created as a secret.  Those parameter values will automatically be filled with values created in the secret. 
 
+Follow the steps below to manually create and configure secrets for your APBs. When deploying with CatASB, secrets containing the `AWS Access Key` and `AWS Secret Key` will be created automatically if appropriate environment variables are set before running.
 
+## Manually Creating Secrets to Autofill AWS Service Parameters
 
-1.  Login to the AWS Management Web Console 
-1.  Click "Services → IAM"
-1.  Click "Roles" in the Left column
-1.  Click "Create Role"
-1.  On the "Select type of trust entity" screen, select "CloudFormation" 
-1.  Then click "Next: Permissions" to continue
-1.  Select an appropriate permission level (select "AdministratorAccess" to give the broker full permissions)
-1.  Click "Next: Review" to continue
-1.  Enter the desired IAM Role Name (e.g. "aws-broker-cloudformation"), and click "Create Role"
+Let's consider a scenario in which you haven't yet set `AWS_ACCESS_KEY_ID` or `AWS_SECRET_ACCESS_KEY` as AWS Broker secrets, and that you wish to create an appropriate secret now so that users provisioning services won't have to know these details.
 
-Once you have completed creating the CloudFormation Role, you can get its ARN by going back to the "Services → IAM" and clicking on "Roles", then selecting your newly created Role. 
-
-The ARN will have the following format:
-
-```
-arn:aws:iam::375558675309:role/my-role-name
-```
-
-
-
-### Creating Secrets for APBs
-
-Many of the APB's will require at least two required parameters in common (e.g. `AWS Access Key` and `AWS Secret Key`), and perhaps more.  You may wish to configure and to set up a secret for all your APB's to share, so that the provisioner of the individual APBs will not need to manually enter those parameter values during provisioning of the APB.  Setting up a secret in this manner, may also provide a level of security, since it will prevent the provisioner of the APBs not to know the actual secret values for the parameters. 
-
-To achieve this goal, the secrets will be created in the 'aws-service-broker' namespace.  Once the secrets for the predetermined parameter are created and configured for an APB, those parameters will NOT appear during the normal APB's launching process.  This means that the user will not even "see" that parameter option to enter the value for, since they have already been set and created as a secret.  Those parameter values will automatically receive the values created in the secret. Follow the step below to create and configure secrets for your APBs.
-
-
-#### Creating the AWS Access and Secret key pair for all APBs
-
-If you wish to use only one set of AWS Access and Secret key pair for for all your APBs, you can simply set a few environment variables **_BEFORE_** running the CatASB run scripts, and the secrets will be **_automatically_** created for the APBs to consume.
-
-In the terminal export the values for the AWS Access and Secret keys as shown below
-
-
-```bash
-$ export AWS_ACCESS_KEY_ID="<my_aws_access_key_value>"
-$ export AWS_SECRET_ACCESS_KEY="<my_aws_secret_key_value>"
-
-$ catasb/local/linux/run_setup_local.sh
-```
-
-
-After this step, the APBs will no longer require the user to input the Access and Secret key parameters during the APB's provisioning step, since those parameter fields will not be visible.
-
-If you wish to remove the secrete later on, logon to the WebUI Console, and visit the` aws-service-broker→ resources → secrets` → `aws-custom-access-key-pair` secret and select `Actions → Delete` to remove the secret from the `aws-service-broker` namespace.
-
-**Note**: After deleting the secret, the AWS access and secret key parameters will once again be required to be inputted during the APB's provisioning step.
-
-
-#### Customizing Secrets for each APBs
-
-If you wish to specify different AWS keys, or region, or any other parameter values for specific APBs, you may do so by creating a custom secrets file.
-
-Let's consider that you have not set the `AWS_ACCESS_KEY_ID` or the `AWS_SECRET_ACCESS_KEY` from the previous example, and that you wish to do so now manually.
-
-Start by creating your secrets file. You may create as many secret files as you like.  
-
-(e.g. the following  are the contents of  `my-secrets.yml` file)
+Start by creating a secrets file. The following snippet shows example contents of a secret-containing YAML file, `my-secrets.yml`.
 
 
 ```yaml
@@ -425,19 +427,17 @@ stringData:
 ```
 
 
-**Note**:  The `key` names in `stringData` section **MUST** be equal to the parameter name specified in the APB that it's configured to be used.  If the names do not match (e.g. `aws_access_key` vs `aws-access-key`) the parameter values will NOT receive the secret.
+**Note**:  The named values (`aws_access_key` and `aws_secret_key`) in the snippet's `stringData` section **MUST** be equal to the parameter names inside of the AWS Service APB that you wish to receive the secret value.  If the names do not match exactly, the parameter values will NOT receive the secret.
 
 Next, create the secret in the "`aws-service-broker`" namespace
-
 
 ```bash
 oc create -f my-secrets.yml -n aws-service-broker
 ```
 
+You may create as many AWS Broker secrets as you like. Simply repeat these steps for each secret.
 
-Run the command above for each of the secret files that you've created.
-
-You can verify that the secrets were created in the WebUI by visiting `resource → secrets` section of the `aws-service-broker` namespace.
+You can verify that the secrets were created in the OpenShift Web Console by visiting the `resource → secrets` section in the `aws-service-broker` namespace.
 
 Now, we want to configure our broker to _use_ the secret that we just created in "`my-secrets`" and configure them to be consumed by our APBs.  
 
@@ -577,7 +577,7 @@ Review the `asb` pod's _logs_ in the `aws-service-broker` namespace. The logs sh
 ```
 
 
-### General APB Tips
+# General APB Tips
 
 Create a new project (namespace) to provision each of the APBs, unless it make sense to do otherwise.
 
@@ -586,10 +586,9 @@ All AWS APBs require the `aws_access_key` and the `aws_secret_key` parameters.  
 Most APB parameters have default values and are descriptive enough to make an educated guess on what the values should be. Many parameters are selectable from a set of valid choices.  However, if any of the parameters do not make sense, do not provision.  Click the "view documentation" and review the AWS service documentation when you're not certain what the parameters should be.
 
 
-### Binding
+## Binding
 
-
-#### Provision first, Bind Later
+### Provision first, Bind Later
 
 If you simply want to provision the APB and wish to bind it to an application at a later time, do the following
 
@@ -601,7 +600,7 @@ If you simply want to provision the APB and wish to bind it to an application at
 *   Redeploy your app if it does not automatically redeploy after binding. Some `source-to-image` apps may need to be manually redeployed
 
 
-#### Bind During the Provisioning Step
+### Bind During the Provisioning Step
 
 To bind applications to APB during the provisioning step, you must already have an App or an APB that was successfully provisioned. Once you have an APB to bind to, do the following
 
@@ -614,9 +613,9 @@ To bind applications to APB during the provisioning step, you must already have 
 *   Redeploy your app if it does not automatically redeploy
 
 
-## Troubleshooting
+# Troubleshooting
 
-#### Debugging connectivity issues from external traffic to VPC
+## Debugging connectivity issues from external traffic to VPC
 
 We've run into some cases with RDS where the connection to the RDS instance was not accessible.  When this happens look at the VPC of the RDS instance and trace to the associated routing table.  Verify that the routing table has a reference to the internet gateway, if you don't see a reference to the igw like below then add it so external traffic is allowed.
 
