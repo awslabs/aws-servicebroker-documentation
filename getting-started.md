@@ -267,6 +267,18 @@ Define the following environment variable for your AWS Account
    </td>
   </tr>
   <tr>
+   <td>AWS_ACCESS_KEY_ID
+   </td>
+   <td>No Default
+   </td>
+  </tr>
+  <tr>
+   <td>AWS_SECRET_ACCESS_KEY
+   </td>
+   <td>No Default
+   </td>
+  </tr>
+  <tr>
    <td>AWS_SSH_KEY_NAME
    </td>
    <td>splice
@@ -291,7 +303,7 @@ Define the following environment variable for your AWS Account
    </td>
   </tr>
   <tr>
-   <td>AWS_PRIV_KEY_PATH
+   <td>AWS_SSH_PRIV_KEY_PATH
    </td>
    <td>No Default
    </td>
