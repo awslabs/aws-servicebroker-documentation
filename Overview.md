@@ -9,7 +9,7 @@ The AWS Service Broker is a Service Broker that provides access to AWS services 
 **[Ansible](https://github.com/ansible/ansible)** >= 2.4.0  
 **[boto](https://github.com/boto/boto)** >= 2.48  
 **[boto3](https://github.com/boto/boto3)** >= 1.4.7  
-**IAM Service Role** - this is the IAM role that CloudFormation will use to create the resources in teh target AWS account, it must have permissions for the CloudFormation service to be able to assume the role, and for the management of any AWS services created by the AWS Serivce Broker.  
+**IAM Service Role** - this is the IAM role that CloudFormation will use to create the resources in the target AWS account, it must have permissions for the CloudFormation service to be able to assume the role, and for the management of any AWS services created by the AWS Serivce Broker.  
 **IAM User** - with at least the following permissions:
 ```json
 {
