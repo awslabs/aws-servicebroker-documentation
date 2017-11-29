@@ -11,10 +11,10 @@ The following terms and abbreviations are used throughout the document.
 *   **Service Catalog** is the component which finds and presents the users the list of services which the user has access to. It also gives the user the ability to provision new instances of those services and provide a way to to bind the provisioned services to existing applications.
 *   **Service Brokers** are the components that manages a set of capabilities in the cloud infrastructure, and provides the service catalog with the list of services, via implementing the Open Service Broker API
 *   **AWS Broker** is the Red Hat's OpenShift Org's implementation of the service broker for Amazon Services.
-*   **Ansible Playbook Bundle (APB)** is a application definition (meta-container) used to define and deploy applications. 
+*   **Ansible Playbook Bundle (APB)** is a application definition (meta-container) used to define and deploy applications.
 
 ### AWS Services available
-After completing the steps in this guide, the following AWS services will be available from the OpenShift Service Catalog as APBs. 
+After completing the steps in this guide, the following AWS services will be available from the OpenShift Service Catalog as APBs.
 
 *   Simple Queue Service (SQS)
 *   Simple Notification Service (SNS)
@@ -47,15 +47,15 @@ Instructions below will guide you in deploying these components in production an
 [Jump to "Production" deployment instructions.](#production-deployment-instructions)
 
  * For production workloads
- * Uses an [OpenShift template](https://s3.amazonaws.com/awsservicebrokerbroker/scripts/deploy-awsservicebroker-broker.template.yaml) to deploy the AWS Broker into an existing OpenShift cluster
+ * Uses an [OpenShift template](https://s3.amazonaws.com/awsservicebroker/scripts/deploy-awsservicebroker.template.yaml) to deploy the AWS Broker into an existing OpenShift cluster
  * Can be quickly deployed on an existing OpenShift cluster
  * Only way to run with on-premises multi-node OpenShift cluster
  * Requires manually running the OpenShift installer
  * May require additional knowledge of OpenShift
- 
- 
+
+
  ## Development
- 
+
  [Jump to "Development" deployment instructions.](#development-deployment-instructions)
 
  * For development and testing
@@ -81,29 +81,29 @@ Before proceeding to Step 2, set up the following:
 ## Step 2: Add the AWS Broker to an OpenShift Cluster
 ### The AWS Broker Deployment Template
 
-The simplest way to load the AWS Broker onto an existing OpenShift cluster is with [deploy-awsservicebroker-broker.template.yaml](https://s3.amazonaws.com/awsservicebrokerbroker/scripts/deploy-awsservicebroker-broker.template.yaml), an OpenShift template describing the components of an AWS Broker deployment.
+The simplest way to load the AWS Broker onto an existing OpenShift cluster is with [deploy-awsservicebroker.template.yaml](https://s3.amazonaws.com/awsservicebroker/scripts/deploy-awsservicebroker.template.yaml), an OpenShift template describing the components of an AWS Broker deployment.
 
-The AWS Broker template [deploy-awsservicebroker-broker.template.yaml](https://s3.amazonaws.com/awsservicebrokerbroker/scripts/deploy-awsservicebroker-broker.template.yaml) has many configurable parameters, and requires several SSL certificates. 
+The AWS Broker template [deploy-awsservicebroker.template.yaml](https://s3.amazonaws.com/awsservicebroker/scripts/deploy-awsservicebroker.template.yaml) has many configurable parameters, and requires several SSL certificates.
 
-Use the [helper script](https://s3.amazonaws.com/awsservicebrokerbroker/scripts/deploy_aws_broker.sh) described in the next section to quickly fill out the recommended values. Important template parameters are described below:
+Use the [helper script](https://s3.amazonaws.com/awsservicebroker/scripts/deploy_aws_broker.sh) described in the next section to quickly fill out the recommended values. Important template parameters are described below:
 
  * `DOCKERHUB_ORG` - Organization from which AWS service APB images will be loaded. Set to`"awsservicebroker"`.
  * `ENABLE_BASIC_AUTH` - Changes authentication from bearer-token auth to basic auth. Set to `"false"`.
  * `NAMESPACE` - Namespace to deploy the broker in. Set to `"aws-service-broker"`.
  * `ETCD_TRUSTED_CA_FILE` - File path of CA certificate for AWS Broker etcd store.
- * `BROKER_CLIENT_CERT_PATH` - File path of AWS Broker client certificate. 
- * `BROKER_CLIENT_KEY_PATH` - File path of AWS Broker client key. 
+ * `BROKER_CLIENT_CERT_PATH` - File path of AWS Broker client certificate.
+ * `BROKER_CLIENT_KEY_PATH` - File path of AWS Broker client key.
 
 ### Using the Helper Script to Process the AWS Broker Deployment Template
-The easiest way to deploy the contents of the AWS Broker deployment template is to run the [helper script](https://s3.amazonaws.com/awsservicebrokerbroker/scripts/deploy_aws_broker.sh) which will generate required SSL certificates and provide required parameters to the template.
+The easiest way to deploy the contents of the AWS Broker deployment template is to run the [helper script](https://s3.amazonaws.com/awsservicebroker/scripts/deploy_aws_broker.sh) which will generate required SSL certificates and provide required parameters to the template.
 
 
 First, create a directory containing the deployment template and helper script.
 ```bash
 mkdir -p ~/aws_broker_install
 cd ~/aws_broker_install
-wget https://s3.amazonaws.com/awsservicebrokerbroker/scripts/deploy-awsservicebroker-broker.template.yaml
-wget https://s3.amazonaws.com/awsservicebrokerbroker/scripts/deploy_aws_broker.sh
+wget https://s3.amazonaws.com/awsservicebroker/scripts/deploy-awsservicebroker.template.yaml
+wget https://s3.amazonaws.com/awsservicebroker/scripts/deploy_aws_broker.sh
 ```
 
 Before running the helper script, verify that the variables near the top of the file are set correctly.
@@ -113,7 +113,7 @@ vi deploy_aws_broker.sh
 
 ```bash
 CLUSTER_ADMIN_USER="system:admin" # OpenShift user with Cluster Administrator role.
-TEMPLATE_FILE="./deploy-awsservicebroker-broker.template.yaml" # Path to AWS Broker deploy template
+TEMPLATE_FILE="./deploy-awsservicebroker.template.yaml" # Path to AWS Broker deploy template
 DOCKERHUB_ORG=${DOCKERHUB_ORG:-"awsservicebroker"} # Dockerhub organization where AWS APBs reside.
 ```
 
@@ -141,7 +141,7 @@ cd catasb
 ```
 
 
-Copy the '`my_vars.yml.example`' to '`my_vars.yml`', and edit the file.  '`my_vars.yml`' is your custom configuration file.  Any variable defined in this file will overwrite its definition anywhere else. 
+Copy the '`my_vars.yml.example`' to '`my_vars.yml`', and edit the file.  '`my_vars.yml`' is your custom configuration file.  Any variable defined in this file will overwrite its definition anywhere else.
 
 
 ```bash
@@ -176,7 +176,7 @@ deploy_awsservicebroker: True
 
 `openshift_client_version` - default is "latest", should match `origin_image_tag` version.
 
-`awsservicebroker_broker_template_dir` - location of AWS Broker Config file
+`awsservicebroker_template_dir` - location of AWS Broker Config file
 
 `deploy_asb` - deploy Ansible Service Broker, defaults to "True"
 
@@ -365,17 +365,17 @@ All APBs require a valid CloudFormation Role ARN (Amazon Resource Name) as a par
 
 
 
-1.  Login to the AWS Management Web Console 
+1.  Login to the AWS Management Web Console
 1.  Click "Services → IAM"
 1.  Click "Roles" in the Left column
 1.  Click "Create Role"
-1.  On the "Select type of trust entity" screen, select "CloudFormation" 
+1.  On the "Select type of trust entity" screen, select "CloudFormation"
 1.  Then click "Next: Permissions" to continue
 1.  Select an appropriate permission level (select "AdministratorAccess" to give the broker full permissions)
 1.  Click "Next: Review" to continue
 1.  Enter the desired IAM Role Name (e.g. "aws-broker-cloudformation"), and click "Create Role"
 
-Once you have completed creating the CloudFormation Role, you can get its ARN by going back to the "Services → IAM" and clicking on "Roles", then selecting your newly created Role. 
+Once you have completed creating the CloudFormation Role, you can get its ARN by going back to the "Services → IAM" and clicking on "Roles", then selecting your newly created Role.
 
 The ARN will have the following format:
 
@@ -387,7 +387,7 @@ arn:aws:iam::375558675309:role/my-role-name
 
 ### Creating Secrets for APBs
 
-Many of the APB's will require at least two required parameters in common (e.g. `AWS Access Key` and `AWS Secret Key`), and perhaps more.  You may wish to configure and to set up a secret for all your APB's to share, so that the provisioner of the individual APBs will not need to manually enter those parameter values during provisioning of the APB.  Setting up a secret in this manner, may also provide a level of security, since it will prevent the provisioner of the APBs not to know the actual secret values for the parameters. 
+Many of the APB's will require at least two required parameters in common (e.g. `AWS Access Key` and `AWS Secret Key`), and perhaps more.  You may wish to configure and to set up a secret for all your APB's to share, so that the provisioner of the individual APBs will not need to manually enter those parameter values during provisioning of the APB.  Setting up a secret in this manner, may also provide a level of security, since it will prevent the provisioner of the APBs not to know the actual secret values for the parameters.
 
 To achieve this goal, the secrets will be created in the 'aws-service-broker' namespace.  Once the secrets for the predetermined parameter are created and configured for an APB, those parameters will NOT appear during the normal APB's launching process.  This means that the user will not even "see" that parameter option to enter the value for, since they have already been set and created as a secret.  Those parameter values will automatically receive the values created in the secret. Follow the step below to create and configure secrets for your APBs.
 
@@ -492,11 +492,11 @@ Add in a "**<code>secrets</code></strong>" section which follows the following s
 ```
 
 
-The `"apb_name"` will follow the above pattern 
+The `"apb_name"` will follow the above pattern
 
 
 
-*   "`dh`" for dockerhub 
+*   "`dh`" for dockerhub
 *   "`myORG`" for the organization (i.e. `awsservicebroker`)
 *   "`tag`" is the APB image tag (i.e. `latest`)
 *   `"secret/title"` is the name of your secret.
@@ -529,7 +529,7 @@ For our `awsservicebroker` APB's, the modified configmap will look as follows:
 ```
 
 
-To make our edits take effect, **restart** the broker's `asb` pod 
+To make our edits take effect, **restart** the broker's `asb` pod
 
 
 ```bash
