@@ -1,4 +1,4 @@
-# Getting Started Guide - Early Access
+# Getting Started Guide
 
 ## Overview
 
