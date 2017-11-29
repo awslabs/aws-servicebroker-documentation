@@ -82,4 +82,4 @@ The AWS Service Broker is a Service Broker that provides access to AWS services 
     ]
 }
 ```
-***NOTE:*** The resource ARN for the "iam:PassRole" permission must match the arn of the service role created for CloudFormation stack actions.
+***NOTE:*** The resource ARN for the "iam:PassRole" permission must match the ARN of the service role created for CloudFormation stack actions.
