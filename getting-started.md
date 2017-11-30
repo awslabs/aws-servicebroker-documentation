@@ -25,6 +25,7 @@ After completing the steps in this guide, the following AWS services will be ava
 *   ElastiCache
 *   Redshift
 *   DynamoDB
+*   Athena
 
 
 ## Requirements
@@ -34,7 +35,7 @@ The following are required to provision AWS services from the OpenShift Service 
 *   OpenShift Container Platform (OCP) or Origin v3.7
 *   Docker
 *   Service Catalog
-*   AWS Service Broker configured with an appropriate registry (e.g. docker.io/awsservicebroker)
+*   AWS Service Broker configured with an appropriate registry (e.g. [docker.io/awsservicebroker](https://hub.docker.com/u/awsservicebroker/dashboard/))
 *   APB Prerequisites (if applicable)
 
 Instructions below will guide you in deploying these components in production and development environments.
@@ -81,7 +82,7 @@ Keep track of role ARN for later during the deployment process.
 [Jump to "Production" deployment instructions.](#production-deployment-instructions)
 
  * For production workloads
- * Uses an [OpenShift template](https://s3.amazonaws.com/awsservicebrokerbroker/scripts/deploy-awsservicebroker-broker.template.yaml) to deploy the AWS Broker into an existing OpenShift cluster
+ * Uses an [OpenShift template](https://s3.amazonaws.com/awsservicebroker/scripts/deploy-awsservicebroker.template.yaml) to deploy the AWS Broker into an existing OpenShift cluster
  * Can be quickly deployed on an existing OpenShift cluster
  * Only way to run with on-premises multi-node OpenShift cluster
  * Requires manually running the OpenShift installer
@@ -115,11 +116,11 @@ Before proceeding to Step 2, set up the following:
 ### Step 2: Add the AWS Broker to an OpenShift Cluster
 #### The AWS Broker Deployment Template
 
-The simplest way to load the AWS Broker onto an existing OpenShift cluster is with [deploy-awsservicebroker-broker.template.yaml](https://s3.amazonaws.com/awsservicebrokerbroker/scripts/deploy-awsservicebroker-broker.template.yaml), an OpenShift template describing the components of an AWS Broker deployment.
+The simplest way to load the AWS Broker onto an existing OpenShift cluster is with [deploy-awsservicebroker-broker.template.yaml](https://s3.amazonaws.com/awsservicebroker/scripts/deploy-awsservicebroker.template.yaml), an OpenShift template describing the components of an AWS Broker deployment.
 
-The AWS Broker template [deploy-awsservicebroker-broker.template.yaml](https://s3.amazonaws.com/awsservicebrokerbroker/scripts/deploy-awsservicebroker-broker.template.yaml) has many configurable parameters, and requires several SSL certificates. 
+The AWS Broker template [deploy-awsservicebroker-broker.template.yaml](https://s3.amazonaws.com/awsservicebroker/scripts/deploy-awsservicebroker.template.yaml) has many configurable parameters, and requires several SSL certificates.
 
-Use the [helper script](https://s3.amazonaws.com/awsservicebrokerbroker/scripts/deploy_aws_broker.sh) described in the next section to quickly fill out the recommended values. Important template parameters are described below:
+Use the [helper script](https://s3.amazonaws.com/awsservicebroker/scripts/deploy_aws_broker.sh) described in the next section to quickly fill out the recommended values. Important template parameters are described below:
 
  * `DOCKERHUB_ORG` - Organization from which AWS service APB images will be loaded. Set to`"awsservicebroker"`.
  * `ENABLE_BASIC_AUTH` - Changes authentication from bearer-token auth to basic auth. Set to `"false"`.
@@ -129,15 +130,15 @@ Use the [helper script](https://s3.amazonaws.com/awsservicebrokerbroker/scripts/
  * `BROKER_CLIENT_KEY_PATH` - File path of AWS Broker client key. 
 
 #### Using the Helper Script to Process the AWS Broker Deployment Template
-The easiest way to deploy the contents of the AWS Broker deployment template is to run the [helper script](https://s3.amazonaws.com/awsservicebrokerbroker/scripts/deploy_aws_broker.sh) which will generate required SSL certificates and provide required parameters to the template.
+The easiest way to deploy the contents of the AWS Broker deployment template is to run the [helper script](https://s3.amazonaws.com/awsservicebroker/scripts/deploy_aws_broker.sh) which will generate required SSL certificates and provide required parameters to the template.
 
 
 First, create a directory containing the deployment template and helper script.
 ```bash
 mkdir -p ~/aws_broker_install
 cd ~/aws_broker_install
-wget https://s3.amazonaws.com/awsservicebrokerbroker/scripts/deploy-awsservicebroker-broker.template.yaml
-wget https://s3.amazonaws.com/awsservicebrokerbroker/scripts/deploy_aws_broker.sh
+wget https://s3.amazonaws.com/awsservicebroker/scripts/deploy-awsservicebroker.template.yaml
+wget https://s3.amazonaws.com/awsservicebroker/scripts/deploy_aws_broker.sh
 ```
 
 Before running the helper script, verify that the variables near the top of the file are set correctly.
@@ -147,7 +148,7 @@ vi deploy_aws_broker.sh
 
 ```bash
 CLUSTER_ADMIN_USER="system:admin" # OpenShift user with Cluster Administrator role.
-TEMPLATE_FILE="./deploy-awsservicebroker-broker.template.yaml" # Path to AWS Broker deploy template
+TEMPLATE_FILE="./deploy-awsservicebroker.template.yaml" # Path to AWS Broker deploy template
 DOCKERHUB_ORG=${DOCKERHUB_ORG:-"awsservicebroker"} # Dockerhub organization where AWS APBs reside.
 ```
 
@@ -204,6 +205,7 @@ openshift_client_version: latest
 deploy_asb: False
 deploy_awsservicebroker: True
 
+aws_role_arn_name: "aws-broker-cloudformation"
 ```
 
 `origin_image_tag` - version of the origin to be used ([click here for the list of valid tags](https://hub.docker.com/r/openshift/origin/tags/))
@@ -216,6 +218,7 @@ deploy_awsservicebroker: True
 
 `deploy_awsservicebroker` - deploy AWS Broker, defaults to "False"
 
+`aws_role_arn_name` -  IAM Role Name for CloudFormation
 
 ### CatASB - Associating an AWS Access and Secret key pair for all APBs
 
@@ -391,7 +394,7 @@ All of the scripts above will output the details of the OpenShift Cluster.  Howe
 
 ### CatASB - OpenShift Web Console Login
 
-When you visit the cluster URL  ([https://172.17.0.1:8443/console/](https://172.17.0.1:8443/console/) is default for CatASB) you should see a login screen as shown below.  The default login for CatASB is `admin` username with `admin` password.
+When you visit the cluster URL  ([https://172.17.0.1:8443/console/](https://172.17.0.1:8443/console/) is default for local CatASB) you should see a login screen as shown below.  The default login for CatASB is `admin` username with `admin` password.
 
 ![OpenShift Login](images/openshift-login.png)
 
@@ -476,20 +479,16 @@ Add in a "**<code>secrets</code></strong>" section which follows the following s
 
 ```yaml
     secrets:
-      - {apb_name: dh-myORG-myAPB-tag, secret: mysecrets, title: mysecrets}
+      - {apb_name: dh-myAPB, secret: mysecrets, title: mysecrets}
 ```
 
 
 The `"apb_name"` will follow the above pattern 
 
-
-
 *   "`dh`" for dockerhub 
-*   "`myORG`" for the organization (i.e. `awsservicebroker`)
-*   "`tag`" is the APB image tag (i.e. `latest`)
 *   `"secret/title"` is the name of your secret.
 
-For our `awsservicebroker` APB's, the modified configmap will look as follows:
+The modified configmap will look as follows:
 
 
 ```yaml
@@ -507,15 +506,17 @@ For our `awsservicebroker` APB's, the modified configmap will look as follows:
         - type: basic
           enabled: False
     secrets:
-      - {apb_name: dh-awsservicebroker-sqs-apb-latest, secret: mysecrets, title: mysecrets}
-      - {apb_name: dh-awsservicebroker-sns-apb-latest, secret: mysecrets, title: mysecrets}
-      - {apb_name: dh-awsservicebroker-rds-apb-latest, secret: mysecrets, title: mysecrets}
-      - {apb_name: dh-awsservicebroker-s3-apb-latest, secret: mysecrets, title: mysecrets}
-      - {apb_name: dh-awsservicebroker-emr-apb-latest, secret: mysecrets, title: mysecrets}
-      - {apb_name: dh-awsservicebroker-redshift-apb-latest, secret: mysecrets, title: mysecrets}
-      - {apb_name: dh-awsservicebroker-elasticache-apb-latest, secret: mysecrets, title: mysecrets}
+      - {apb_name: dh-sqs-apb, secret: mysecrets, title: mysecrets}
+      - {apb_name: dh-sns-apb, secret: mysecrets, title: mysecrets}
+      - {apb_name: dh-r53-apb, secret: mysecrets, title: mysecrets}
+      - {apb_name: dh-rds-apb, secret: mysecrets, title: mysecrets}
+      - {apb_name: dh-emr-apb, secret: mysecrets, title: mysecrets}
+      - {apb_name: dh-redshift-apb, secret: mysecrets, title: mysecrets}
+      - {apb_name: dh-elasticache-apb, secret: mysecrets, title: mysecrets}
+      - {apb_name: dh-dynamo-apb, secret: mysecrets, title: mysecrets}
+      - {apb_name: dh-s3-apb, secret: mysecrets, title: mysecrets}
+      - {apb_name: dh-athena-apb, secret: mysecrets, title: mysecrets}
 ```
-
 
 To make our edits take effect, **restart** the broker's `asb` pod 
 
@@ -573,7 +574,7 @@ Review the `asb` pod's _logs_ in the `aws-service-broker` namespace. The logs sh
 
 
 ```bash
-[DEBUG] Filtering secrets from spec dh-awsservicebroker-sqs-apb-latest
+[DEBUG] Filtering secrets from spec dh-sqs-apb
 ```
 
 
