@@ -116,9 +116,9 @@ Before proceeding to Step 2, set up the following:
 ### Step 2: Add the AWS Broker to an OpenShift Cluster
 #### The AWS Broker Deployment Template
 
-The simplest way to load the AWS Broker onto an existing OpenShift cluster is with [deploy-awsservicebroker-broker.template.yaml](https://s3.amazonaws.com/awsservicebroker/scripts/deploy-awsservicebroker.template.yaml), an OpenShift template describing the components of an AWS Broker deployment.
+The simplest way to load the AWS Broker onto an existing OpenShift cluster is with [deploy-awsservicebroker.template.yaml](https://s3.amazonaws.com/awsservicebroker/scripts/deploy-awsservicebroker.template.yaml), an OpenShift template describing the components of an AWS Broker deployment.
 
-The AWS Broker template [deploy-awsservicebroker-broker.template.yaml](https://s3.amazonaws.com/awsservicebroker/scripts/deploy-awsservicebroker.template.yaml) has many configurable parameters, and requires several SSL certificates.
+The AWS Broker template [deploy-awsservicebroker.template.yaml](https://s3.amazonaws.com/awsservicebroker/scripts/deploy-awsservicebroker.template.yaml) has many configurable parameters, and requires several SSL certificates.
 
 Use the [helper script](https://s3.amazonaws.com/awsservicebroker/scripts/deploy_aws_broker.sh) described in the next section to quickly fill out the recommended values. Important template parameters are described below:
 
