@@ -11,10 +11,10 @@ The following terms and abbreviations are used throughout the document.
 *   **Service Catalog** is the component which finds and presents the users the list of services which the user has access to. It also gives the user the ability to provision new instances of those services and provide a way to to bind the provisioned services to existing applications.
 *   **Service Brokers** are the components that manages a set of capabilities in the cloud infrastructure, and provides the service catalog with the list of services, via implementing the Open Service Broker API
 *   **AWS Broker** is the Red Hat's OpenShift Org's implementation of the service broker for Amazon Services.
-*   **Ansible Playbook Bundle (APB)** is a application definition (meta-container) used to define and deploy applications. 
+*   **Ansible Playbook Bundle (APB)** is a application definition (meta-container) used to define and deploy applications.
 
 ### AWS Services available
-After completing the steps in this guide, the following AWS services will be available from the OpenShift Service Catalog as APBs. 
+After completing the steps in this guide, the following AWS services will be available from the OpenShift Service Catalog as APBs.
 
 *   Simple Queue Service (SQS)
 *   Simple Notification Service (SNS)
@@ -50,21 +50,21 @@ Keep track of the created key for later in the deployment process.
 
 ### Create an IAM Role for the AWS Broker to assume
 
-When the AWS Broker is provisioning services, it assumes an IAM Role to access CloudFormation. The AWS Access Key you've just created needs access to this CloudFormation IAM role so that the AWS Broker can assume the role for service provisioning tasks. 
+When the AWS Broker is provisioning services, it assumes an IAM Role to access CloudFormation. The AWS Access Key you've just created needs access to this CloudFormation IAM role so that the AWS Broker can assume the role for service provisioning tasks.
 
 Follow these instructions to manually create a compatible IAM role.
 
-1.  Login to the AWS Management Web Console 
+1.  Login to the AWS Management Web Console
 1.  Click "Services → IAM"
 1.  Click "Roles" in the Left column
 1.  Click "Create Role"
-1.  On the "Select type of trust entity" screen, select "CloudFormation" 
+1.  On the "Select type of trust entity" screen, select "CloudFormation"
 1.  Then click "Next: Permissions" to continue
 1.  Select an appropriate permission level (select "AdministratorAccess" to give the broker full permissions)
 1.  Click "Next: Review" to continue
 1.  Enter the desired IAM Role Name (e.g. "aws-broker-cloudformation"), and click "Create Role"
 
-Once you have completed creating the role, you can get its ARN by going back to the "Services → IAM" and clicking on "Roles", then selecting your newly created Role. 
+Once you have completed creating the role, you can get its ARN by going back to the "Services → IAM" and clicking on "Roles", then selecting your newly created Role.
 
 The role ARN will have the following format:
 
@@ -87,10 +87,10 @@ Keep track of role ARN for later during the deployment process.
  * Only way to run with on-premises multi-node OpenShift cluster
  * Requires manually running the OpenShift installer
  * May require additional knowledge of OpenShift
- 
- 
+
+
 ### Development
- 
+
  [Jump to "Development" deployment instructions.](#development-deployment-instructions)
 
  * For development and testing
@@ -126,8 +126,8 @@ Use the [helper script](https://s3.amazonaws.com/awsservicebroker/scripts/deploy
  * `ENABLE_BASIC_AUTH` - Changes authentication from bearer-token auth to basic auth. Set to `"false"`.
  * `NAMESPACE` - Namespace to deploy the broker in. Set to `"aws-service-broker"`.
  * `ETCD_TRUSTED_CA_FILE` - File path of CA certificate for AWS Broker etcd store.
- * `BROKER_CLIENT_CERT_PATH` - File path of AWS Broker client certificate. 
- * `BROKER_CLIENT_KEY_PATH` - File path of AWS Broker client key. 
+ * `BROKER_CLIENT_CERT_PATH` - File path of AWS Broker client certificate.
+ * `BROKER_CLIENT_KEY_PATH` - File path of AWS Broker client key.
 
 #### Using the Helper Script to Process the AWS Broker Deployment Template
 The easiest way to deploy the contents of the AWS Broker deployment template is to run the [helper script](https://s3.amazonaws.com/awsservicebroker/scripts/deploy_aws_broker.sh) which will generate required SSL certificates and provide required parameters to the template.
@@ -176,7 +176,7 @@ cd catasb
 ```
 
 
-Copy the '`my_vars.yml.example`' to '`my_vars.yml`', and edit the file.  '`my_vars.yml`' is your custom configuration file.  Any variable defined in this file will overwrite its definition anywhere else. 
+Copy the '`my_vars.yml.example`' to '`my_vars.yml`', and edit the file.  '`my_vars.yml`' is your custom configuration file.  Any variable defined in this file will overwrite its definition anywhere else.
 
 
 ```bash
@@ -419,7 +419,7 @@ After login, you will be greeted with the following main screen.
 
 Many of the AWS Service APBs share a common set of required parameters (e.g. `AWS Access Key`, `AWS Secret Key`, `CloudFormation Role ARN`, `Region`, `VPC ID`) which a cluster administrator may want to hide from the user for security or simplicity purposes. Using AWS Broker secrets, cluster administrators can hide chosen parameters, and instead opt to manually designate preset values per-service or in general.  
 
-To hide selected AWS Service parameters from Service Catalog users, a cluster administrator must create secret(s) in the 'aws-service-broker' namespace.  Once secrets containing parameter presets are created and associated with an APB, those parameters will NOT appear during the normal APB's launching process.  This means that the user will not even "see" that parameter option to enter the value for, since they have already been set and created as a secret.  Those parameter values will automatically be filled with values created in the secret. 
+To hide selected AWS Service parameters from Service Catalog users, a cluster administrator must create secret(s) in the 'aws-service-broker' namespace.  Once secrets containing parameter presets are created and associated with an APB, those parameters will NOT appear during the normal APB's launching process.  This means that the user will not even "see" that parameter option to enter the value for, since they have already been set and created as a secret.  Those parameter values will automatically be filled with values created in the secret.
 
 Follow the steps below to manually create and configure secrets for your APBs. When deploying with CatASB, secrets containing the `AWS Access Key` and `AWS Secret Key` will be created automatically if appropriate environment variables are set before running.
 
@@ -427,7 +427,7 @@ Follow the steps below to manually create and configure secrets for your APBs. W
 
 Let's consider a scenario in which you haven't yet set `AWS_ACCESS_KEY_ID` or `AWS_SECRET_ACCESS_KEY` as AWS Broker secrets, and that you wish to create an appropriate secret now so that users provisioning services won't have to know these details.
 
-Start by creating a secrets file. The following snippet shows example contents of a secret-containing YAML file, `my-secrets.yml`.
+Start by creating a secrets file. The following snippet shows example contents of a secret-containing YAML file, `aws-secret.yml`.
 
 
 ```yaml
@@ -435,7 +435,7 @@ Start by creating a secrets file. The following snippet shows example contents o
 apiVersion: v1
 kind: Secret
 metadata:
-  name: my-secrets
+  name: aws-secret
 stringData:
   aws_access_key: "changeme"
   aws_secret_key: "changeme"
@@ -447,14 +447,14 @@ stringData:
 Next, create the secret in the "`aws-service-broker`" namespace
 
 ```bash
-oc create -f my-secrets.yml -n aws-service-broker
+oc create -f aws-secret.yml -n aws-service-broker
 ```
 
 You may create as many AWS Broker secrets as you like. Simply repeat these steps for each secret.
 
 You can verify that the secrets were created in the OpenShift Web Console by visiting the `resource → secrets` section in the `aws-service-broker` namespace.
 
-Now, we want to configure our broker to _use_ the secret that we just created in "`my-secrets`" and configure them to be consumed by our APBs.  
+Now, we want to configure our broker to _use_ the secret that we just created in "`aws-secret`" and configure them to be consumed by our APBs.  
 
 To do so, edit the broker's `configmap` by issuing the following command
 
@@ -491,13 +491,13 @@ Add in a "**<code>secrets</code></strong>" section which follows the following s
 
 ```yaml
     secrets:
-      - {apb_name: dh-myAPB, secret: mysecrets, title: mysecrets}
+      - {apb_name: dh-myAPB, secret: aws-secret, title: aws-secret}
 ```
 
 
-The `"apb_name"` will follow the above pattern 
+The `"apb_name"` will follow the above pattern
 
-*   "`dh`" for dockerhub 
+*   "`dh`" for dockerhub
 *   `"secret/title"` is the name of your secret.
 
 The modified configmap will look as follows:
@@ -518,19 +518,19 @@ The modified configmap will look as follows:
         - type: basic
           enabled: False
     secrets:
-      - {apb_name: dh-sqs-apb, secret: mysecrets, title: mysecrets}
-      - {apb_name: dh-sns-apb, secret: mysecrets, title: mysecrets}
-      - {apb_name: dh-r53-apb, secret: mysecrets, title: mysecrets}
-      - {apb_name: dh-rds-apb, secret: mysecrets, title: mysecrets}
-      - {apb_name: dh-emr-apb, secret: mysecrets, title: mysecrets}
-      - {apb_name: dh-redshift-apb, secret: mysecrets, title: mysecrets}
-      - {apb_name: dh-elasticache-apb, secret: mysecrets, title: mysecrets}
-      - {apb_name: dh-dynamo-apb, secret: mysecrets, title: mysecrets}
-      - {apb_name: dh-s3-apb, secret: mysecrets, title: mysecrets}
-      - {apb_name: dh-athena-apb, secret: mysecrets, title: mysecrets}
+      - {apb_name: dh-sqs-apb, secret: aws-secret, title: aws-secret}
+      - {apb_name: dh-sns-apb, secret: aws-secret, title: aws-secret}
+      - {apb_name: dh-r53-apb, secret: aws-secret, title: aws-secret}
+      - {apb_name: dh-rds-apb, secret: aws-secret, title: aws-secret}
+      - {apb_name: dh-emr-apb, secret: aws-secret, title: aws-secret}
+      - {apb_name: dh-redshift-apb, secret: aws-secret, title: aws-secret}
+      - {apb_name: dh-elasticache-apb, secret: aws-secret, title: aws-secret}
+      - {apb_name: dh-dynamo-apb, secret: aws-secret, title: aws-secret}
+      - {apb_name: dh-s3-apb, secret: aws-secret, title: aws-secret}
+      - {apb_name: dh-athena-apb, secret: aws-secret, title: aws-secret}
 ```
 
-To make our edits take effect, **restart** the broker's `asb` pod 
+To make our edits take effect, **restart** the broker's `asb` pod
 
 
 ```bash
