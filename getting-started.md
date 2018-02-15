@@ -525,7 +525,7 @@ The modified configmap will look as follows:
       - {apb_name: dh-emr-apb, secret: aws-secret, title: aws-secret}
       - {apb_name: dh-redshift-apb, secret: aws-secret, title: aws-secret}
       - {apb_name: dh-elasticache-apb, secret: aws-secret, title: aws-secret}
-      - {apb_name: dh-dynamo-apb, secret: aws-secret, title: aws-secret}
+      - {apb_name: dh-dynamodb-apb, secret: aws-secret, title: aws-secret}
       - {apb_name: dh-s3-apb, secret: aws-secret, title: aws-secret}
       - {apb_name: dh-athena-apb, secret: aws-secret, title: aws-secret}
 ```
