@@ -12,3 +12,6 @@
 **Q:** Do I have to add the parameters and credentails with each launch of a service plan or application?  
 **A:** No you can customize secrets to be reused, this is helpful for secrects or parameters which are frequentlt repeated such as IAM keys or service Role.
 
+**Q** Can the Service Broker be implement behind a proxy solution?
+**A** No, at this stage there is no proxy support, This will catered for within later releases.
+
