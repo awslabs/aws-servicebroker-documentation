@@ -1,20 +1,19 @@
 # FAQ
 
-**Q:** Do I have to add the parameters and credentials with each launch of a service plan or application?   
-**A:** No you can customize secrets to be reused, this is helpful for secrets or parameters which are frequently repeated such as IAM keys or service Role.
+**Q:** Do I have to add parameters and credentials for each launch of a service plan or application?   
+**A:** No, you can customize secrets to be reused. This is helpful for secrets or parameters which are frequently repeated such as IAM keys or service role.
 
-**Q:** What are the licencing options for the AWS Service Broker?  
-**A:** The AWS Service Broker will be released as open source project, the OpenShift platform does cater for an enterprise (Red Hat OpenShift Container Platform) and upstream project (Origin). Trial versions of OpenShift can be used for short term validation and testing, POC workloads.
+**Q:** Can the AWS Service Broker be used with Red Hat OpenShift Container Platform?
+**A:** Yes, the AWS Service Broker can be used with both Red Hat OpenShift Container Platform and the upstream project, Origin.
 
-**Q** Can the AWS Service Broker be used with the Red Hat OpenShift Container Platform?
-**A** Yes the AWS Servcie Broker can be used on both Red Hat OpenShift Container Platform and Origin. 
+**Q:** Does the AWS Service Broker only work with Red Hat Enterprise Linux (RHEL)?  
+**A:** No, deployments have been done on other operating systems including Fedora, Centos, Atom, and Amazon Linux.
 
-**Q:** Does this only work with RHEL?  
-**A:** No, Deployments have been done on Fedora, Centos, Atom, Amazon Linux, 
+**Q:** Can the AWS Service Broker be implemented behind a proxy solution?
+**A:** Not at this time. Proxy support will included in a later release of the broker.
 
-**Q:** Do I have to add the parameters and credentails with each launch of a service plan or application?  
-**A:** No you can customize secrets to be reused, this is helpful for secrects or parameters which are frequently repeated such as IAM keys or service Role.
+**Q:** What are the licensing options for the AWS Service Broker?  
+**A:** The AWS Service Broker is released as an open source project and licensed under the [Apache License, Version 2.0](http://www.apache.org/licenses/).
 
-**Q** Can the Service Broker be implement behind a proxy solution?
-**A** No, at this stage there is no proxy support, This will catered for within later releases.
-
+**Q:** Can support be obtained when using the AWS Service Broker on Red Hat OpenShift Container Platform?
+**A:** Yes, customers with a valid Red Hat subscription for OpenShift Container Platform can obtain support by contacting Red Hat Support for assistance. Commercial support is not available outside of this specific use case.
