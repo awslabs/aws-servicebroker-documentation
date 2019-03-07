@@ -1,4 +1,4 @@
-AWS Servicebroker Documentation
+This repo has been deprecated, please refer to https://github.com/awslabs/aws-servicebroker/tree/master/docs
 
 ## License
 
